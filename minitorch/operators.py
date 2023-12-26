@@ -22,12 +22,12 @@ def id(x: float) -> float:
 
 def add(x: float, y: float) -> float:
     "$f(x, y) = x + y$"
-    return x + y
+    return float(x + y)
 
 
 def neg(x: float) -> float:
     "$f(x) = -x$"
-    return mul(x, -1)
+    return float(mul(x, -1))
 
 
 def lt(x: float, y: float) -> float:
@@ -81,7 +81,7 @@ def relu(x: float) -> float:
     """
     if x > 0:
         return x
-    return 0
+    return 0.0
 
 
 EPS = 1e-6
@@ -94,7 +94,7 @@ def log(x: float) -> float:
 
 def exp(x: float) -> float:
     "$f(x) = e^{x}$"
-    return math.exp(x)
+    return float(math.exp(x))
 
 
 def log_back(x: float, d: float) -> float:
