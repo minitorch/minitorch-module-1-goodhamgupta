@@ -24,6 +24,8 @@ if len(sys.argv) != 3:
 current_path = os.getcwd()
 grandparent_path = "/".join(current_path.split("/")[:-1])
 
+grandparent_path = "/Users/shubham.gupta/shubham/minitorch/"
+
 print("Looking for modules in : ", grandparent_path)
 
 # List of files which we want to move
