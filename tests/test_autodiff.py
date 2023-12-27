@@ -26,13 +26,13 @@ class Function2(ScalarFunction):
     @staticmethod
     def forward(ctx: Context, x: float, y: float) -> float:
         "$f(x, y) = x \times y + x$"
-        ctx.save_for_backward(x, y)
+        ctx.save_for_backward((x, y))
         return x * y + x
 
     @staticmethod
     def backward(ctx: Context, d_output: float) -> Tuple[float, float]:
         "Derivatives are $f'_x(x, y) = y + 1$ and $f'_y(x, y) = x$"
-        x, y = ctx.saved_values
+        ((x, y),) = ctx.saved_values
         return d_output * (y + 1), d_output * x
 
 

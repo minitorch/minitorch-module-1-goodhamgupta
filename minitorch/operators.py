@@ -99,7 +99,7 @@ def exp(x: float) -> float:
 
 def log_back(x: float, d: float) -> float:
     r"If $f = log$ as above, compute $d \times f'(x)$"
-    return d * log(x)
+    return d * inv(x)
 
 
 def inv(x: float) -> float:
@@ -109,7 +109,7 @@ def inv(x: float) -> float:
 
 def inv_back(x: float, d: float) -> float:
     r"If $f(x) = 1/x$ compute $d \times f'(x)$"
-    return d * inv(x)
+    return d * -1 * inv(pow(x, 2))
 
 
 def relu_back(x: float, d: float) -> float:
