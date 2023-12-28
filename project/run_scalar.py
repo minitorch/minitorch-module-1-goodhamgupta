@@ -11,14 +11,22 @@ class Network(minitorch.Module):
     def __init__(self, hidden_layers):
         super().__init__()
         # TODO: Implement for Task 1.5.
-        self.layer1 = Linear(50, 2)
-        self.layer2 = Linear(2, 2)
-        self.layer3 = Linear(2, 1)
+        self.hidden_layers = hidden_layers
+        self.layer_1 = Linear(2, 2)
+        for idx in range(2, self.hidden_layers + 1):
+            layer_name = f"layer_{idx}"
+            setattr(self, layer_name, Linear(2, 2))
+        self.final = Linear(2, 1)
 
     def forward(self, x):
-        middle = [h.relu() for h in self.layer1.forward(x)]
-        end = [h.relu() for h in self.layer2.forward(middle)]
-        return self.layer3.forward(end)[0].sigmoid()
+        middle = [h.relu() for h in self.layer_1.forward(x)]
+        intermediate = middle
+        if self.hidden_layers >= 2:
+            for idx in range(2, self.hidden_layers):
+                layer_name = f"layer_{idx}"
+                layer = getattr(self, layer_name)
+                intermediate = [h.relu() for h in layer.forward(intermediate)]
+        return self.final.forward(intermediate)[0].sigmoid()
 
 
 class Linear(minitorch.Module):
@@ -110,7 +118,7 @@ class ScalarTrain:
 
 if __name__ == "__main__":
     PTS = 50
-    HIDDEN = 2
+    data = minitorch.datasets["Xor"](PTS)
+    HIDDEN = 10
     RATE = 0.5
-    data = minitorch.datasets["Simple"](PTS)
     ScalarTrain(HIDDEN).train(data, RATE)
