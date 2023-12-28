@@ -11,17 +11,32 @@ class Network(minitorch.Module):
     def __init__(self, hidden_layers):
         super().__init__()
         # TODO: Implement for Task 1.5.
-        raise NotImplementedError("Need to implement for Task 1.5")
+        self.hidden_layers = hidden_layers
+        max_size = 20
+        self.input_layer = Linear(2, max_size)
+        prev_size = max_size
+        for idx in range(1, self.hidden_layers + 1):
+            layer_name = f"layer_{idx}"
+            cur_size = int(prev_size // 2)
+            setattr(self, layer_name, Linear(prev_size, cur_size))
+            prev_size = cur_size
+        self.final = Linear(cur_size, 1)
 
     def forward(self, x):
-        middle = [h.relu() for h in self.layer1.forward(x)]
-        end = [h.relu() for h in self.layer2.forward(middle)]
-        return self.layer3.forward(end)[0].sigmoid()
+        middle = [h.relu() for h in self.input_layer.forward(x)]
+        intermediate = middle
+        for idx in range(1, self.hidden_layers + 1):
+            layer_name = f"layer_{idx}"
+            layer = getattr(self, layer_name)
+            intermediate = [h.relu() for h in layer.forward(intermediate)]
+        return self.final.forward(intermediate)[0].sigmoid()
 
 
 class Linear(minitorch.Module):
     def __init__(self, in_size, out_size):
         super().__init__()
+        self.in_size = in_size
+        self.out_size = out_size
         self.weights = []
         self.bias = []
         for i in range(in_size):
@@ -39,9 +54,17 @@ class Linear(minitorch.Module):
                 )
             )
 
+    def shape(self):
+        return (self.in_size, self.out_size)
+
     def forward(self, inputs):
-        # TODO: Implement for Task 1.5.
-        raise NotImplementedError("Need to implement for Task 1.5")
+        output = []
+        for i_idx in range(self.out_size):
+            node_output = self.bias[i_idx].value
+            for j_idx in range(self.in_size):
+                node_output += inputs[j_idx] * self.weights[j_idx][i_idx].value
+            output.append(node_output)
+        return output
 
 
 def default_log_fn(epoch, total_loss, correct, losses):
@@ -62,6 +85,7 @@ class ScalarTrain:
         self.learning_rate = learning_rate
         self.max_epochs = max_epochs
         self.model = Network(self.hidden_layers)
+        self.model.train()
         optim = minitorch.SGD(self.model.parameters(), learning_rate)
 
         losses = []
@@ -101,7 +125,7 @@ class ScalarTrain:
 
 if __name__ == "__main__":
     PTS = 50
-    HIDDEN = 2
-    RATE = 0.5
     data = minitorch.datasets["Simple"](PTS)
+    HIDDEN = 2
+    RATE = 0.05
     ScalarTrain(HIDDEN).train(data, RATE)

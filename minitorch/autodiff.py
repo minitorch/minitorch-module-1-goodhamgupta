@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Iterable, List, Tuple
+from typing import Any, Iterable, Tuple
 
 from typing_extensions import Protocol
 
@@ -23,7 +23,12 @@ def central_difference(f: Any, *vals: Any, arg: int = 0, epsilon: float = 1e-6) 
         An approximation of $f'_i(x_0, \ldots, x_{n-1})$
     """
     # TODO: Implement for Task 1.1.
-    raise NotImplementedError("Need to implement for Task 1.1")
+    half = epsilon / 2.0
+    left = list(vals)
+    right = list(vals)
+    left[arg] += half
+    right[arg] -= half
+    return (f(*left) - f(*right)) / epsilon
 
 
 variable_count = 1
@@ -62,7 +67,19 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
         Non-constant Variables in topological order starting from the right.
     """
     # TODO: Implement for Task 1.4.
-    raise NotImplementedError("Need to implement for Task 1.4")
+    topo_order = []
+    visited = set()
+
+    def visit(var: Variable) -> None:
+        if var.name not in visited and not var.is_constant():  # type: ignore
+            visited.add(var.name)  # type: ignore
+            for parent in var.parents:
+                visit(parent)
+            topo_order.append(var)
+
+    visit(variable)
+    topo_order.reverse()
+    return topo_order
 
 
 def backpropagate(variable: Variable, deriv: Any) -> None:
@@ -76,8 +93,17 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
 
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
-    # TODO: Implement for Task 1.4.
-    raise NotImplementedError("Need to implement for Task 1.4")
+    # ordered_variables = topological_sort(variable)
+
+    def do_compute(cur_var: Variable, cur_deriv: Any) -> None:
+        if cur_var.is_leaf():
+            cur_var.accumulate_derivative(cur_deriv)
+        else:
+            local_gradients = cur_var.chain_rule(cur_deriv)
+            for node, node_deriv in local_gradients:
+                do_compute(node, node_deriv)
+
+    do_compute(variable, deriv)
 
 
 @dataclass
